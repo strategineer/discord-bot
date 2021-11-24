@@ -9,6 +9,7 @@ const client = new Client({ intents: [Intents.FLAGS.GUILD_MESSAGES] });
 
 const CHANNEL_ID_GENERAL = "913078425139421186";
 const CHANNEL_ID_EVERYONE_IS_JOHN = "913078485193490443";
+const CHANNEL_ID_SECRET = "913113539726700584";
 
 client.commands = new Collection();
 
@@ -23,26 +24,17 @@ for (const file of commandFiles) {
   client.commands.set(command.data.name, command);
 }
 
-client.on("ready", async () => {
-  console.log(`Logged in as ${client.user.tag}!`);
-});
+const eventFiles = fs
+  .readdirSync("./events")
+  .filter((file) => file.endsWith(".js"));
 
-client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isCommand()) return;
-
-  const command = client.commands.get(interaction.commandName);
-
-  if (!command) return;
-
-  try {
-    await command.execute(interaction);
-  } catch (error) {
-    console.error(error);
-    await interaction.reply({
-      content: "There was an error while executing this command!",
-      ephemeral: true,
-    });
+for (const file of eventFiles) {
+  const event = require(`./events/${file}`);
+  if (event.once) {
+    client.once(event.name, (...args) => event.execute(...args));
+  } else {
+    client.on(event.name, (...args) => event.execute(...args));
   }
-});
+}
 
 client.login(token);
