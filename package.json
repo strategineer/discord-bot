@@ -1,0 +1,24 @@
+{
+  "name": "discord-bot",
+  "version": "1.0.0",
+  "description": "simple Discord bot using node",
+  "main": "bot.js",
+  "scripts": {
+    "bot": "node bot.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/strategineer/discord-bot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/strategineer/discord-bot/issues"
+  },
+  "homepage": "https://github.com/strategineer/discord-bot#readme",
+  "dependencies": {
+    "discord.js": "^13.3.1"
+  }
+}
