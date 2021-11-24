@@ -9,7 +9,6 @@ const client = new Client({ intents: [Intents.FLAGS.GUILD_MESSAGES] });
 
 const CHANNEL_ID_GENERAL = "913078425139421186";
 const CHANNEL_ID_EVERYONE_IS_JOHN = "913078485193490443";
-const CHANNEL_ID_SECRET = "913113539726700584";
 
 client.commands = new Collection();
 
