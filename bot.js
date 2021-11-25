@@ -131,12 +131,29 @@ client.utils.hasGameStarted = function () {
   return client.snackbox.currentVoice !== undefined;
 };
 
+client.utils.formatVoiceStats = function (user) {
+  var msg = `Voice: ${user}\n`;
+  msg += `Willpower: ${client.utils.getWillpower(user)}\n`;
+  msg += `Skills: ${client.utils.formatSkills(user)}\n`;
+  msg += `Obsessions: ${client.utils.formatObsessions(user)}\n`;
+  return msg;
+};
+
+client.utils.formatSkills = function (user) {
+  const skills = client.snackbox.skills[user];
+  if (skills === undefined) {
+    return "No skills set";
+  } else {
+    return `Your skills are:    \n${skills.join("    \n")}`;
+  }
+};
+
 client.utils.formatObsessions = function (user) {
   const obsessions = client.snackbox.obsessions[user];
   if (obsessions === undefined) {
     return "No obsessions set";
   } else {
-    return `Your obsessions are:\nLevel 1: ${obsessions[0]}\nLevel 2: ${obsessions[1]}\nLevel 3: ${obsessions[2]}`;
+    return `Your obsessions are:\n    Level 1: ${obsessions[0]}\n    Level 2: ${obsessions[1]}\n    Level 3: ${obsessions[2]}`;
   }
 };
 
