@@ -7,8 +7,6 @@ module.exports = {
     .setName("help")
     .setDescription("Need some help?"),
   async execute(interaction) {
-    await interaction.reply(
-      `Never played Everyone is John before? Here's some quick instructions: [${helpUrl}](${helpUrl})!`
-    );
+    await interaction.reply(interaction.client.utils.helpMessage());
   },
 };

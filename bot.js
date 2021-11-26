@@ -4,7 +4,7 @@ const fs = require("fs");
 
 const { Client, Collection, Intents } = require("discord.js");
 const { token } = require("./secret.json");
-const { gmId } = require("./config.json");
+const { gmId, helpUrl } = require("./config.json");
 
 const client = new Client({ intents: [Intents.FLAGS.GUILD_MESSAGES] });
 
@@ -45,11 +45,14 @@ function getRandomInt(min, max) {
 }
 
 client.snackbox = {
+  voices: [],
   bids: {},
   willpowers: {},
   skills: {},
   obsessions: {},
+  scores: {},
   currentVoice: undefined,
+  isInTestForControl: false,
 };
 
 // Util functions
@@ -63,6 +66,14 @@ client.utils.sleep = function (ms) {
 
 client.utils.rollD = function (n) {
   return getRandomInt(1, n);
+};
+
+client.utils.notAVoiceYetHelpMessage = function () {
+  return `Ask the GM to add you to the game before you start messing around here!\n${client.utils.helpMessage()}`;
+};
+
+client.utils.helpMessage = function () {
+  return `Never played Everyone is John before? Here's some quick instructions: [${helpUrl}](${helpUrl})`;
 };
 
 client.utils.rollOffHelper = function (users, msg) {
@@ -134,9 +145,38 @@ client.utils.hasGameStarted = function () {
 client.utils.formatVoiceStats = function (user) {
   var msg = `Voice: ${user}\n`;
   msg += `Willpower: ${client.utils.getWillpower(user)}\n`;
+  msg += `Bid: ${client.utils.getBid(user)}\n`;
   msg += `Skills: ${client.utils.formatSkills(user)}\n`;
   msg += `Obsessions: ${client.utils.formatObsessions(user)}\n`;
   return msg;
+};
+
+client.utils.isVoice = function (user) {
+  return client.snackbox.voices.includes(user);
+};
+
+client.utils.isVoiceReadyToPlay = function (user) {
+  return (
+    client.utils.isVoice(user) &&
+    client.snackbox.skills[user] !== undefined &&
+    client.snackbox.obsessions[user] !== undefined
+  );
+};
+
+client.utils.getVoices = function () {
+  return client.snackbox.voices;
+};
+
+client.utils.formatAllSkills = function () {
+  var msg = "";
+  client.utils.getVoices().forEach((user) => {
+    msg += `${user}'s Skills:\n${client.utils.formatSkills(user)}\n`;
+  });
+  if (msg !== "") {
+    return msg;
+  } else {
+    return "No players have set their skills yet.";
+  }
 };
 
 client.utils.formatSkills = function (user) {
@@ -144,8 +184,16 @@ client.utils.formatSkills = function (user) {
   if (skills === undefined) {
     return "No skills set";
   } else {
-    return `Your skills are:    \n${skills.join("    \n")}`;
+    return `\n${skills.join("    \n")}`;
   }
+};
+
+client.utils.formatAllObsessions = function () {
+  var msg = "All Obsessions:\n";
+  client.utils.getVoices().forEach((user) => {
+    msg += `${user}'s Obsessions:\n${client.utils.formatObsessions(user)}\n`;
+  });
+  return msg;
 };
 
 client.utils.formatObsessions = function (user) {
@@ -153,7 +201,7 @@ client.utils.formatObsessions = function (user) {
   if (obsessions === undefined) {
     return "No obsessions set";
   } else {
-    return `Your obsessions are:\n    Level 1: ${obsessions[0]}\n    Level 2: ${obsessions[1]}\n    Level 3: ${obsessions[2]}`;
+    return `\nLevel 1: ${obsessions[0]}\nLevel 2: ${obsessions[1]}\nLevel 3: ${obsessions[2]}`;
   }
 };
 

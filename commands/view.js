@@ -26,17 +26,31 @@ module.exports = {
         .setDescription("View the current voice in control of John")
     ),
   async execute(interaction) {
+    if (!interaction.client.utils.isVoice(interaction.user)) {
+      await interaction.reply({
+        content: interaction.client.utils.notAVoiceYetHelpMessage(),
+        ephemeral: true,
+      });
+      return;
+    }
     if (interaction.options.getSubcommand() === "willpower") {
       // Show the current willpower of all players
-      var willpowersMsg = "\n";
+      var msg = "\n";
       Object.entries(interaction.client.snackbox.willpowers).forEach(
         ([user, value]) => {
-          willpowersMsg += `${user}: ${value}\n`;
+          msg += `${user}: ${value}\n`;
         }
       );
-      await interaction.reply(`Willpowers: ${willpowersMsg}`);
+      await interaction.reply(`Willpowers: ${msg}`);
     } else if (interaction.options.getSubcommand() === "bid") {
       // Secretly show your own bid
+      if (!interaction.client.snackbox.isInTestForControl) {
+        await interaction.reply({
+          content: "No bid set because we're not in a test for control!",
+          ephemeral: true,
+        });
+        return;
+      }
       bid = interaction.client.utils.getBid(interaction.user);
       await interaction.reply({
         content: `Bid is set to ${bid}`,
@@ -53,17 +67,7 @@ module.exports = {
       }
     } else if (interaction.options.getSubcommand() === "skills") {
       // Show the current skills for all players
-      var skillsMsg = "";
-      Object.entries(interaction.client.snackbox.skills).forEach(
-        ([user, skills]) => {
-          skillsMsg += `${user}:\n${skills.join("\n")}\n`;
-        }
-      );
-      if (skillsMsg !== "") {
-        await interaction.reply(skillsMsg);
-      } else {
-        await interaction.reply("No players have set their skills yet.");
-      }
+      await interaction.reply(interaction.client.utils.formatAllSkills());
     } else if (interaction.options.getSubcommand() === "obsessions") {
       // Secretly show your own obsessions
       obsessions = interaction.client.snackbox.obsessions[interaction.user];
@@ -74,7 +78,9 @@ module.exports = {
         });
       } else {
         await interaction.reply({
-          content: interaction.client.utils.formatObsessions(interaction.user),
+          content: `Your obsessions are: ${interaction.client.utils.formatObsessions(
+            interaction.user
+          )}`,
           ephemeral: true,
         });
       }
