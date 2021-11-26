@@ -142,8 +142,17 @@ client.utils.hasGameStarted = function () {
   return client.snackbox.currentVoice !== undefined;
 };
 
+client.utils.formatLeaderboard = function () {
+  var msg = `Leaderboard:\n`;
+  client.utils.getVoices().forEach((voice) => {
+    msg += `${voice}: ${client.snackbox.scores[voice]}\n`;
+  });
+  return msg;
+};
+
 client.utils.formatVoiceStats = function (user) {
   var msg = `Voice: ${user}\n`;
+  msg += `Score: ${client.snackbox.scores[user]}\n`;
   msg += `Willpower: ${client.utils.getWillpower(user)}\n`;
   msg += `Bid: ${client.utils.getBid(user)}\n`;
   msg += `Skills: ${client.utils.formatSkills(user)}\n`;

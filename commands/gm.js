@@ -6,6 +6,11 @@ module.exports = {
     .setDescription("Manage the game")
     .addSubcommand((subcommand) =>
       subcommand
+        .setName("leaderboard")
+        .setDescription("Display the leaderboard secretly")
+    )
+    .addSubcommand((subcommand) =>
+      subcommand
         .setName("add")
         .setDescription("Add a voice to the game")
         .addUserOption((option) =>
@@ -18,7 +23,7 @@ module.exports = {
     .addSubcommand((subcommand) =>
       subcommand
         .setName("voice")
-        .setDescription("Secretely view a voice's stats")
+        .setDescription("Secretly view a voice's stats")
         .addUserOption((option) =>
           option
             .setName("voice")
@@ -113,6 +118,11 @@ module.exports = {
       voice = interaction.options.getUser("voice");
       interaction.client.snackbox.voices.push(voice);
       await interaction.reply(`${voice} added to the game`);
+    } else if (interaction.options.getSubcommand() === "leaderboard") {
+      await interaction.reply({
+        content: interaction.client.utils.formatLeaderboard(),
+        ephemeral: true,
+      });
     } else if (interaction.options.getSubcommand() === "voice") {
       await interaction.reply({
         content: `${interaction.client.utils.formatVoiceStats(
