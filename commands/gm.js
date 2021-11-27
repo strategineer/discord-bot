@@ -169,7 +169,9 @@ module.exports = {
       ] += levelOfObsessionAchieved;
 
       msg = `${scoringVoice} achieved their level ${levelOfObsessionAchieved}: ${
-        interaction.client.snackbox.obsessions[levelOfObsessionAchieved - 1]
+        interaction.client.snackbox.obsessions[scoringVoice][
+          levelOfObsessionAchieved - 1
+        ]
       }\n You should start a test for control '/gm control start' unless there are other obsessions that have been achieved in the same action.`;
 
       await interaction.reply({

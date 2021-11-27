@@ -17,6 +17,7 @@ module.exports = {
       });
       return;
     }
+    /* TODO(strategineer): This code didn't work... The != vs. !== is probably responsible 
     // doesn't apply to GM
     if (
       interaction.user != interaction.client.snackbox.currentVoice &&
@@ -28,6 +29,7 @@ module.exports = {
       });
       return;
     }
+  */
     willpowerBonus = interaction.options.getInteger("willpower");
     if (willpowerBonus !== null) {
       currentWillpower = interaction.client.utils.getWillpower(
