@@ -3,59 +3,42 @@ const { SlashCommandBuilder } = require("@discordjs/builders");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("roll")
-    .setDescription("rolls a d6!")
+    .setDescription(
+      "rolls the given number (Stat + Skill usually) of d6s (and a bonus Computer Dice)!"
+    )
     .addIntegerOption((option) =>
-      option
-        .setName("willpower")
-        .setDescription("The number of willpower to spend on this roll")
+      option.setName("number").setDescription("The number of d6s to roll")
     ),
   async execute(interaction) {
-    if (!interaction.client.utils.isVoice(interaction.user)) {
-      await interaction.reply({
-        content: interaction.client.utils.notAVoiceYetHelpMessage(),
-        ephemeral: true,
-      });
-      return;
+    let numberOfDice = interaction.options.getInteger("number");
+    let isNumberOfDiceNegative = numberOfDice < 0;
+    numberOfDice = Math.abs(numberOfDice);
+    let n = 0;
+    let roll = 0;
+    let rollMsg = `Rolled [`;
+    let successes = 0;
+    let failures = 0;
+    while (n < numberOfDice + 1) {
+      roll = interaction.client.utils.rollD(6);
+      if (roll >= 5) {
+        successes += 1;
+      } else if (isNumberOfDiceNegative) {
+        failures += 1;
+      }
+      // computer dice
+      if (n == numberOfDice) {
+        rollMsg += ` ${roll} ] `;
+      } else {
+        rollMsg += ` ${roll} `;
+      }
+      n += 1;
     }
-    /* TODO(strategineer): This code didn't work... The != vs. !== is probably responsible 
-    // doesn't apply to GM
-    if (
-      interaction.user != interaction.client.snackbox.currentVoice &&
-      !interaction.client.utils.isGm(interaction.user)
-    ) {
-      await interaction.reply({
-        content: "You can't roll unless you're in control of John",
-        ephemeral: true,
-      });
-      return;
-    }
-  */
-    willpowerBonus = interaction.options.getInteger("willpower");
-    if (willpowerBonus !== null) {
-      currentWillpower = interaction.client.utils.getWillpower(
-        interaction.user
-      );
-      if (willpowerBonus > currentWillpower) {
-        await interaction.reply(`You only have ${currentWillpower}!`);
-        return;
+    rollMsg += `\n\n${successes - failures} successes.`;
+    if (n == numberOfDice + 1) {
+      if (roll == 6) {
+        rollMsg += "\n\nBut... The computer notices you...";
       }
     }
-    roll = interaction.client.utils.rollD(6);
-    rollMsg = undefined;
-    if (willpowerBonus === null) {
-      rollMsg = `Rolled a ${roll} with a d6`;
-    } else {
-      newWillpower = currentWillpower - willpowerBonus;
-      interaction.client.utils.setWillpower(interaction.user, newWillpower);
-      rollMsg = `Rolled a ${
-        roll + willpowerBonus
-      } with a d6 + ${willpowerBonus} willpower. ${
-        interaction.user
-      } now have ${newWillpower} willpower left.`;
-    }
     await interaction.reply(rollMsg);
-    await interaction.client.utils.sendSecret(
-      `${interaction.user}: ${rollMsg}`
-    );
   },
 };
